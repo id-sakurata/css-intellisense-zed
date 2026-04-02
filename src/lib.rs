@@ -36,7 +36,11 @@ impl zed::Extension for CssIntellisenseExtension {
             .unwrap_or_else(|| "index.js".to_string());
 
         // Validasi hanya jika path relatif (di dalam ekstensi)
-        if !server_path.starts_with('/') {
+        // Kita lewati validasi jika path absolut (dimulai dengan '/' atau drive letter Windows)
+        let is_absolute = server_path.starts_with('/') || 
+                         (server_path.len() > 1 && server_path.as_bytes()[1] == b':' && server_path.as_bytes()[0].is_ascii_alphabetic());
+
+        if !is_absolute {
             let full_path = std::env::current_dir()
                 .unwrap()
                 .join(&server_path);
